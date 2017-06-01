@@ -15,26 +15,36 @@
 -->
 
 <script type="text/x-red" data-template-name="file-buffer">
-    <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
-    </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name">
+  </div>
 </script>
 
 <script type="text/x-red" data-help-name="file-buffer">
-    <p>This node is ...
-    </p>
+  <p>This node is designed to be used in conjuction with the http multipart in node.
+  As the multipart node does not provide a buffer, this node can be used to load a
+  file using a path into a buffer.
+  </p>
 
-    <p><b>Usage</b></p>
-    <p>This node should be provided in input : </p>
-    <ul>
-      <li><code>msg.payload</code> : the ...
-       </li>
-    </ul>
-    <p>On successful conversion this node will output : </p>
-    <ul>
-      <li><code>msg.payload</code> : a stream buffer </li>
-    </ul>
+  <p><b>Usage</b></p>
+  <p>This node should be provided in input : </p>
+  <ul>
+    <li><code>msg.payload</code> : the path of the file.
+    If you are using the http in multipart node then the path for the first file
+    will be
+      <code>
+        var files = Object.keys(msg.req.files);
+      </code>
+      <code>
+        msg.payload = msg.req.files[files[0]][0].path;
+      </code>
+    </li>
+  </ul>
+  <p>On successful conversion this node will output : </p>
+  <ul>
+    <li><code>msg.payload</code> : a buffer containing the file contents</li>
+  </ul>
 
 </script>
 
@@ -42,32 +52,37 @@
   .node_label_white {
     fill: white;
   }
-  #palette_node_file-buffer > div.palette_label {
+
+  #palette_node_file-buffer>div.palette_label {
     color: white;
   }
 </style>
 
 <script type="text/javascript">
-    (function() {
-        RED.nodes.registerType('file-buffer', {
-            category: 'function',
-            defaults: {
-                name: {value: ""}
-            },
-            credentials: {
-              token: {type:"text"}
-            },
-            color: "rgb(50,150,50)",
-            inputs: 1,
-            outputs: 1,
-            paletteLabel: "file path to buffer",
-            icon: "bridge.png",
-            label: function() {
-                return this.name || "file buffer";
-            },
-            labelStyle: function() {
-                return this.name ? "node_label_italic node_label_white" : "node_label_white";
-            }
-        });
-    })();
+  (function() {
+    RED.nodes.registerType('file-buffer', {
+      category: 'function',
+      defaults: {
+        name: {
+          value: ""
+        }
+      },
+      credentials: {
+        token: {
+          type: "text"
+        }
+      },
+      color: "rgb(50,150,50)",
+      inputs: 1,
+      outputs: 1,
+      paletteLabel: "file path to buffer",
+      icon: "bridge.png",
+      label: function() {
+        return this.name || "file buffer";
+      },
+      labelStyle: function() {
+        return this.name ? "node_label_italic node_label_white" : "node_label_white";
+      }
+    });
+  })();
 </script>
