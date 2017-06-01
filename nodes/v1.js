@@ -17,24 +17,59 @@
 module.exports = function(RED) {
   var fs = require('fs');
 
+
+  function verifyPayload(msg) {
+    if (!msg.payload) {
+      return Promise.reject('Missing property: msg.payload');
+    } else {
+      return Promise.resolve();
+    }
+  }
+
   function Node(config) {
     var node = this;
     RED.nodes.createNode(this, config);
 
     this.on('input', function(msg) {
-      var message = '';
-
+      //var message = '';
       node.status({
         fill: 'blue',
         shape: 'dot',
-        text: 'about to do something'
+        text: 'loading file'
       });
 
-      var readStream = fs.readFileSync(msg.payload);
-      //fs.createReadStream(info.path);
-      msg.payload = readStream ;
+      verifyPayload(msg)
+      .then(function(){
+        var readStream = fs.readFileSync(msg.payload);
+        //fs.createReadStream(info.path);
+        msg.payload = readStream;
 
-      node.send(msg);
+        node.status({});
+        node.send(msg);
+      })
+      .catch(function(err) {
+        var messageTxt = err;
+        if (err.error) {
+          messageTxt = err.error;
+        } else if (err.description) {
+          messageTxt = err.description;
+        }
+        node.status({
+          fill: 'red',
+          shape: 'dot',
+          text: messageTxt
+        });
+
+        msg.result = {};
+        msg.result['error'] = err;
+        node.error(messageTxt, msg);
+        // Note: This node.send forwards the error to the next node,
+        // if this isn't desired then this line needs to be removed.
+        // Should be ok as the node.error would already have recorded
+        // the error in the debug console.
+        node.send(msg);
+      });
+
     });
   }
 
