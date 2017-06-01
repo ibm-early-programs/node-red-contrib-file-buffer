@@ -26,6 +26,15 @@ module.exports = function(RED) {
     }
   }
 
+  function loadFile(msg) {
+    var p = new Promise(function resolver(resolve, reject) {
+        var readStream = fs.readFileSync(msg.payload);
+        msg.payload = readStream;
+        resolve();
+    });
+    return p;
+  }
+
   function Node(config) {
     var node = this;
     RED.nodes.createNode(this, config);
@@ -39,36 +48,35 @@ module.exports = function(RED) {
       });
 
       verifyPayload(msg)
-      .then(function(){
-        var readStream = fs.readFileSync(msg.payload);
-        //fs.createReadStream(info.path);
-        msg.payload = readStream;
+        .then(function() {
+          return loadFile(msg);
+        })
+        .then(function() {
+          node.status({});
+          node.send(msg);
+        })
+        .catch(function(err) {
+          var messageTxt = err;
+          if (err.error) {
+            messageTxt = err.error;
+          } else if (err.description) {
+            messageTxt = err.description;
+          }
+          node.status({
+            fill: 'red',
+            shape: 'dot',
+            text: messageTxt
+          });
 
-        node.status({});
-        node.send(msg);
-      })
-      .catch(function(err) {
-        var messageTxt = err;
-        if (err.error) {
-          messageTxt = err.error;
-        } else if (err.description) {
-          messageTxt = err.description;
-        }
-        node.status({
-          fill: 'red',
-          shape: 'dot',
-          text: messageTxt
+          msg.result = {};
+          msg.result['error'] = err;
+          node.error(messageTxt, msg);
+          // Note: This node.send forwards the error to the next node,
+          // if this isn't desired then this line needs to be removed.
+          // Should be ok as the node.error would already have recorded
+          // the error in the debug console.
+          node.send(msg);
         });
-
-        msg.result = {};
-        msg.result['error'] = err;
-        node.error(messageTxt, msg);
-        // Note: This node.send forwards the error to the next node,
-        // if this isn't desired then this line needs to be removed.
-        // Should be ok as the node.error would already have recorded
-        // the error in the debug console.
-        node.send(msg);
-      });
 
     });
   }
