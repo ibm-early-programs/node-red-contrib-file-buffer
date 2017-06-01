@@ -17,7 +17,6 @@
 module.exports = function(RED) {
   var fs = require('fs');
 
-
   function verifyPayload(msg) {
     if (!msg.payload) {
       return Promise.reject('Missing property: msg.payload');
@@ -28,11 +27,37 @@ module.exports = function(RED) {
 
   function loadFile(msg) {
     var p = new Promise(function resolver(resolve, reject) {
-        var readStream = fs.readFileSync(msg.payload);
-        msg.payload = readStream;
-        resolve();
+        fs.readFile(msg.payload, function(err, data){
+          if (err) {
+            reject(err);
+          } else {
+            msg.payload = data;
+            resolve();
+          }
+        });
     });
     return p;
+  }
+
+  function reportError(node, msg, err) {
+    var messageTxt = err;
+    if (err.code && 'ENOENT' === err.code) {
+      messageTxt = 'Invalid File Path';
+    }
+    if (err.error) {
+      messageTxt = err.error;
+    } else if (err.description) {
+      messageTxt = err.description;
+    }
+    node.status({
+      fill: 'red',
+      shape: 'dot',
+      text: messageTxt
+    });
+
+    msg.result = {};
+    msg.result['error'] = err;
+    node.error(messageTxt, msg);
   }
 
   function Node(config) {
@@ -56,21 +81,7 @@ module.exports = function(RED) {
           node.send(msg);
         })
         .catch(function(err) {
-          var messageTxt = err;
-          if (err.error) {
-            messageTxt = err.error;
-          } else if (err.description) {
-            messageTxt = err.description;
-          }
-          node.status({
-            fill: 'red',
-            shape: 'dot',
-            text: messageTxt
-          });
-
-          msg.result = {};
-          msg.result['error'] = err;
-          node.error(messageTxt, msg);
+          reportError(node,msg,err);
           // Note: This node.send forwards the error to the next node,
           // if this isn't desired then this line needs to be removed.
           // Should be ok as the node.error would already have recorded
