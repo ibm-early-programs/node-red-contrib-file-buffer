@@ -3,7 +3,7 @@
 [Node-RED](http://nodered.org) Node to be used in conjunction with the
 http multipart in node.
 As the multipart node does not provide a buffer, this node can be used to load a
-file using a path into a buffer.
+file using a path into a buffer or as a stream.
 
 
 ## Install
@@ -27,9 +27,9 @@ Set msg.payload to a file path. If you are using the http in multipart node then
 
 
 ### Output
-msg.payload will be a buffer containing the file contents.
+msg.payload will be a buffer or a stream containing the file contents.
 
-### Sample follow
+### Sample flow
 This flow uses a multipart form to send a file to Watson Recognition for
 classification.
 
@@ -39,6 +39,7 @@ classification.
 
 ## Contributing
 For simple typos and fixes please just raise an issue pointing out our mistakes. If you need to raise a pull request please read our [contribution guidelines](https://github.com/ibm-early-programs/node-red-contrib-file-buffer/blob/master/CONTRIBUTING.md) before doing so.
+
 ## Copyright and license
 
 Copyright 2017 IBM Corp. under the Apache 2.0 license.

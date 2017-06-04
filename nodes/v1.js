@@ -39,15 +39,34 @@ module.exports = function(RED) {
     return p;
   }
 
+  function loadStream(msg) {
+    var p = new Promise(function resolver(resolve, reject) {
+      var stream = fs.createReadStream(msg.payload);
+      //stream.pause();
+      stream.on('error', function(err) {
+        reject(err);
+      });
+      stream.on('open', function() {
+        msg.payload = stream;
+        resolve();
+      });
+
+    });
+    return p;
+  }
+
+
   function reportError(node, msg, err) {
     var messageTxt = err;
-    if (err.code && 'ENOENT' === err.code) {
-      messageTxt = 'Invalid File Path';
-    }
+    //if (err.code && 'ENOENT' === err.code) {
+    //  messageTxt = 'Invalid File Path';
+    //}
     if (err.error) {
       messageTxt = err.error;
     } else if (err.description) {
       messageTxt = err.description;
+    } else if (err.message) {
+      messageTxt = err.message;
     }
     node.status({
       fill: 'red',
@@ -74,7 +93,13 @@ module.exports = function(RED) {
 
       verifyPayload(msg)
         .then(function() {
-          return loadFile(msg);
+          var mode = config['mode'] || 'asBuffer';
+          if ('asBuffer' === mode) {
+            return loadFile(msg);
+          } else {
+            return loadStream(msg);
+          }
+
         })
         .then(function() {
           node.status({});
