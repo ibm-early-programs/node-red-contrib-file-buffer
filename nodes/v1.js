@@ -42,12 +42,13 @@ module.exports = function(RED) {
   function loadStream(msg) {
     var p = new Promise(function resolver(resolve, reject) {
       var stream = fs.createReadStream(msg.payload);
+      stream.pause();
       stream.on('error', function(err) {
         reject(err);
       });
       stream.on('open', function() {
-          msg.payload = stream;
-          resolve();
+        msg.payload = stream;
+        resolve();
       });
 
     });
