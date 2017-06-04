@@ -19,6 +19,15 @@
     <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
     <input type="text" id="node-input-name" placeholder="Name">
   </div>
+
+  <div class="form-row">
+      <label for="node-input-mode"><i class="fa fa-feed"></i> As Buffer or Stream: </label>
+      <select type="text" id="node-input-mode" style="display: inline-block; width: 70%;">
+          <option value="asBuffer">Buffer</option>
+          <option value="asStream">Stream</option>
+      </select>
+  </div>
+
 </script>
 
 <script type="text/x-red" data-help-name="file-buffer">
@@ -63,25 +72,24 @@
     RED.nodes.registerType('file-buffer', {
       category: 'function',
       defaults: {
-        name: {
-          value: ""
-        }
+        name: { value: '' },
+        mode: { value: {value:'asBuffer'} }
       },
       credentials: {
         token: {
-          type: "text"
+          type: 'text'
         }
       },
-      color: "rgb(50,150,50)",
+      color: 'rgb(50,150,50)',
       inputs: 1,
       outputs: 1,
-      paletteLabel: "file path to buffer",
-      icon: "bridge.png",
+      paletteLabel: 'file path to buffer',
+      icon: 'file.png',
       label: function() {
-        return this.name || "file buffer";
+        return this.name || 'file buffer';
       },
       labelStyle: function() {
-        return this.name ? "node_label_italic node_label_white" : "node_label_white";
+        return this.name ? 'node_label_italic node_label_white' : 'node_label_white';
       }
     });
   })();
