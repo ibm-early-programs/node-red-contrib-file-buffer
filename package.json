@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-file-buffer",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Create a file buffer for a file",
   "dependencies": {
   },
@@ -12,7 +12,8 @@
   "keywords": [
     "node-red",
     "file",
-    "stream"
+    "stream",
+    "buffer"
   ],
   "contributors": [ {
       "name": "Soheel Chughtai",
